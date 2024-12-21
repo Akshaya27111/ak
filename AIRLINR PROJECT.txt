@@ -1,0 +1,203 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+// Flight class
+class Flight {
+    private String flightNumber;
+    private String destination;
+    private String departure;
+    private int capacity;
+    private int bookedSeats;
+
+    public Flight(String flightNumber, String destination, String departure, int capacity) {
+        this.flightNumber = flightNumber;
+        this.destination = destination;
+        this.departure = departure;
+        this.capacity = capacity;
+        this.bookedSeats = 0;
+    }
+
+    // Getters
+    public String getFlightNumber() {
+        return flightNumber;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public String getDeparture() {
+        return departure;
+    }
+
+    public int getAvailableSeats() {
+        return capacity - bookedSeats;
+    }
+
+    // Book a seat
+    public boolean bookSeat() {
+        if (bookedSeats < capacity) {
+            bookedSeats++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Flight Number: " + flightNumber + ", Destination: " + destination +
+                ", Departure: " + departure + ", Available Seats: " + getAvailableSeats();
+    }
+}
+
+// Passenger class
+class Passenger {
+    private String name;
+    private String passportNumber;
+
+    public Passenger(String name, String passportNumber) {
+        this.name = name;
+        this.passportNumber = passportNumber;
+    }
+
+    // Added getter method for name to use in booking confirmation
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Passenger Name: " + name + ", Passport Number: " + passportNumber;
+    }
+}
+
+// Booking class
+class Booking {
+    private Passenger passenger;
+    private Flight flight;
+
+    public Booking(Passenger passenger, Flight flight) {
+        this.passenger = passenger;
+        this.flight = flight;
+    }
+
+    @Override
+    public String toString() {
+        return passenger.toString() + ", Flight: " + flight.getFlightNumber();
+    }
+}
+
+// AirlineReservationSystem class
+class AirlineReservationSystem {
+    private ArrayList<Flight> flights;
+    private ArrayList<Booking> bookings;
+
+    public AirlineReservationSystem() {
+        flights = new ArrayList<>();
+        bookings = new ArrayList<>();
+    }
+
+    // Add a flight
+    public void addFlight(Flight flight) {
+        flights.add(flight);
+    }
+
+    // List all flights
+    public void listFlights() {
+        if (flights.isEmpty()) {
+            System.out.println("No flights available.");
+        } else {
+            for (Flight flight : flights) {
+                System.out.println(flight);
+            }
+        }
+    }
+
+    // Find a flight by flight number
+    public Flight findFlightByNumber(String flightNumber) {
+        for (Flight flight : flights) {
+            if (flight.getFlightNumber().equalsIgnoreCase(flightNumber)) {
+                return flight;
+            }
+        }
+        return null;
+    }
+
+    // Book a flight
+    public void bookFlight(Passenger passenger, String flightNumber) {
+        Flight flight = findFlightByNumber(flightNumber);
+        if (flight != null) {
+            if (flight.bookSeat()) {
+                Booking booking = new Booking(passenger, flight);
+                bookings.add(booking);
+                System.out.println("Booking successful for " + passenger.getName());
+            } else {
+                System.out.println("No available seats on this flight.");
+            }
+        } else {
+            System.out.println("Flight not found.");
+        }
+    }
+
+    // List all bookings
+    public void listBookings() {
+        if (bookings.isEmpty()) {
+            System.out.println("No bookings available.");
+        } else {
+            for (Booking booking : bookings) {
+                System.out.println(booking);
+            }
+        }
+    }
+}
+
+// Main class
+public class AirlineReservationSystemApp {
+    public static void main(String[] args) {
+        AirlineReservationSystem system = new AirlineReservationSystem();
+        Scanner scanner = new Scanner(System.in);
+
+        // Preload flights
+        system.addFlight(new Flight("A101", "New York", "Los Angeles", 100));
+        system.addFlight(new Flight("B202", "London", "Paris", 50));
+        system.addFlight(new Flight("C303", "Tokyo", "Seoul", 75));
+
+        while (true) {
+            System.out.println("\nAirline Reservation System:");
+            System.out.println("1. List Flights");
+            System.out.println("2. Book a Flight");
+            System.out.println("3. View Bookings");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    system.listFlights();
+                    break;
+                case 2:
+                    System.out.print("Enter passenger name: ");
+                    scanner.nextLine(); // Consume newline
+                    String name = scanner.nextLine();
+                    System.out.print("Enter passport number: ");
+                    String passportNumber = scanner.nextLine();
+                    System.out.print("Enter flight number: ");
+                    String flightNumber = scanner.nextLine();
+
+                    Passenger passenger = new Passenger(name, passportNumber);
+                    system.bookFlight(passenger, flightNumber);
+                    break;
+                case 3:
+                    system.listBookings();
+                    break;
+                case 4:
+                    System.out.println("Exiting system. Goodbye!");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+}
